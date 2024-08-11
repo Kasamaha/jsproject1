@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postal Code Information</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+    body {
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+    
+    h1 {
+        color: #007bff;
+    }
+    
+    #results {
+        background-color: #ffffff;
+        border: 1px solid #dddddd;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    
+    .result-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+    }
+    
+    .result-item h4 {
+        margin: 0;
+        color: #333333;
+    }
+    
+    .result-item p {
+        margin: 0;
+        color: #666666;
+    }
+</style>
+    
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Postal Code Information</h1>
+        <div class="form-group">
+            <label for="pincode">Search by Pincode:</label>
+            <input type="text" class="form-control" id="pincode" placeholder="Enter pincode">
+            <button class="btn btn-primary mt-2" onclick="searchByPincode()">Search</button>
+        </div>
+
+        <div class="form-group mt-4">
+            <label for="area">Search by Area:</label>
+            <input type="text" class="form-control" id="area" placeholder="Enter area name">
+            <button class="btn btn-primary mt-2" onclick="searchByArea()">Search</button>
+        </div>
+
+        <div id="results" class="mt-4">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+// Function to search by pincode
+function searchByPincode() {
+    const pincode = document.getElementById('pincode').value;
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = '';
+
+    if (pincode) {
+        fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data[0].Status === 'Success') {
+                    data[0].PostOffice.forEach(postOffice => {
+                        const resultItem = document.createElement('div');
+                        resultItem.classList.add('result-item');
+                        resultItem.innerHTML = `
+                            <h4>${postOffice.Name}</h4>
+                            <p>District: ${postOffice.District}</p>
+                            <p>State: ${postOffice.State}</p>
+                            <p>Country: ${postOffice.Country}</p>
+                        `;
+                        resultsContainer.appendChild(resultItem);
+                    });
+                } else {
+                    resultsContainer.innerHTML = '<p>No results found</p>';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    } else {
+        resultsContainer.innerHTML = '<p>Please enter a pincode</p>';
+    }
+}
+
+// Function to search by area
+function searchByArea() {
+    const area = document.getElementById('area').value;
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = '';
+
+    if (area) {
+        fetch(`https://api.postalpincode.in/postoffice/${area}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data[0].Status === 'Success') {
+                    data[0].PostOffice.forEach(postOffice => {
+                        const resultItem = document.createElement('div');
+                        resultItem.classList.add('result-item');
+                        resultItem.innerHTML = `
+                            <h4>${postOffice.Name}</h4>
+                            <p>Pincode: ${postOffice.Pincode}</p>
+                            <p>District: ${postOffice.District}</p>
+                            <p>State: ${postOffice.State}</p>
+                            <p>Country: ${postOffice.Country}</p>
+                        `;
+                        resultsContainer.appendChild(resultItem);
+                    });
+                } else {
+                    resultsContainer.innerHTML = '<p>No results found</p>';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    } else {
+        resultsContainer.innerHTML = '<p>Please enter an area name</p>';
+    }
+}
+
+    </script>
+</body>
+</html>
